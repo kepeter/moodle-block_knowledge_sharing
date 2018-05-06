@@ -1,0 +1,41 @@
+.block_knowledge_sharing .root {
+	overflow: auto;
+	min-height: 16rem;
+	max-height: 64rem;
+}
+
+.block_knowledge_sharing .root img.edit {
+	margin: 4px;
+}
+
+.block_knowledge_sharing img.group {
+	margin: 4px;
+}
+
+.block_knowledge_sharing a.group.active {
+}
+
+.block_knowledge_sharing a.group.inactive {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+.block_knowledge_sharing .root img.edit:hover, 
+.block_knowledge_sharing img.group:hover {
+	background-color: #c0e0e0;
+}
+
+.block_knowledge_sharing .knowledge_sharing_module:hover {
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.block_knowledge_sharing .content table {
+	table-layout: fixed;
+	width: 100%;
+}
+
+.block_knowledge_sharing .content .footer {
+	padding: 10px 0 0;
+	margin-top: .5em;
+}
