@@ -15,25 +15,21 @@
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 defined ( 'MOODLE_INTERNAL' ) || die ();
 
-$capabilities = array (
-    
-    'block/knowledge_sharing:myaddinstance' => array (
-        'captype'              => 'write',
-        'contextlevel'         => CONTEXT_SYSTEM,
-        'archetypes'           => array (
-            'user' => CAP_ALLOW 
-        ),
-        'clonepermissionsfrom' => 'moodle/my:manageblocks' 
+$functions = array (
+    'block_knowledge_sharing_external_duplicte' => array (
+        'classname'   => 'block_knowledge_sharing_external',
+        'methodname'  => 'duplicate',
+        'classpath'   => '/blocks/knowledge_sharing/classes/external.php',
+        'description' => 'Duplicate course module.',
+        'type'        => 'write',
+        'ajax'        => true 
     ),
-    
-    'block/knowledge_sharing:addinstance' => array (
-        'riskbitmask'          => RISK_SPAM | RISK_XSS,
-        'captype'              => 'write',
-        'contextlevel'         => CONTEXT_BLOCK,
-        'archetypes'           => array (
-            'editingteacher' => CAP_ALLOW,
-            'manager'        => CAP_ALLOW 
-        ),
-        'clonepermissionsfrom' => 'moodle/site:manageblocks' 
+    'block_knowledge_sharing_external_group'    => array (
+        'classname'   => 'block_knowledge_sharing_external',
+        'methodname'  => 'group',
+        'classpath'   => '/blocks/knowledge_sharing/classes/external.php',
+        'description' => 'Renders tree according to group option.',
+        'type'        => 'read',
+        'ajax'        => true 
     ) 
 );

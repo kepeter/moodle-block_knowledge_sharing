@@ -13,10 +13,13 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+namespace block_knowledge_sharing\privacy;
+
 defined ( 'MOODLE_INTERNAL' ) || die ();
 
-$plugin->version = 2018100300;
-$plugin->release = '1.0.0.1';
-$plugin->requires = 2016052300;
-$plugin->component = 'block_knowledge_sharing';
-$plugin->maturity = MATURITY_STABLE;
+class provider implements \core_privacy\local\metadata\null_provider {
+
+    public static function get_reason() {
+        return 'privacy:metadata';
+    }
+}
