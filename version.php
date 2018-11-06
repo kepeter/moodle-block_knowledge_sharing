@@ -17,6 +17,6 @@ defined ( 'MOODLE_INTERNAL' ) || die ();
 
 $plugin->version = 2018100300;
 $plugin->release = '1.0.0.1';
-$plugin->requires = 2016052300;
+$plugin->requires = 2018051700;
 $plugin->component = 'block_knowledge_sharing';
 $plugin->maturity = MATURITY_STABLE;
