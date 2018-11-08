@@ -12,7 +12,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-define([ 'jquery', 'core/ajax' ], function ($, Ajax) {
+
+/**
+ * Knowledge Sharing Block
+ * 
+ * @package block_knowledge_sharing
+ * @copyright 2018 Peter Eliyahu Kornfeld
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+define([ 'jquery', 'core/tree', 'core/ajax', 'core/url' ], function ($, tree, ajax, url) {
     var block_knowledge_sharing = {};
 
     var init_tree = function (treeid, searchid) {
@@ -31,170 +39,115 @@ define([ 'jquery', 'core/ajax' ], function ($, Ajax) {
     };
 
     var setgroup = function () {
-        Y.one('#' + block_knowledge_sharing.treeid).ancestor().all('#group_tag, #group_category').removeClass('active').addClass(
-                'inactive');
-
-        Y.one('#' + block_knowledge_sharing.treeid).ancestor().one('#' + block_knowledge_sharing.activeGroup).addClass('active')
-                .removeClass('inactive');
+        $('#group_tag, #group_category').removeClass('active').addClass('inactive');
+        $('#' + block_knowledge_sharing.activeGroup).addClass('active').removeClass('inactive');
     };
 
     var group = function () {
-        Y.one('#' + block_knowledge_sharing.treeid).ancestor().all('#group_tag, #group_category').on('click', function (e) {
+        $('#group_tag, #group_category').on('click', function (e) {
             e.preventDefault();
 
-            if (e.currentTarget.getAttribute('class').indexOf('inactive') >= 0) {
+            if ($(e.currentTarget).attr('class').indexOf('inactive') >= 0) {
                 return;
             }
 
-            var forTag = e.currentTarget.get('id').replace('group_', '') == 'tag';
+            var forTag = $(e.currentTarget).attr('id').replace('group_', '') == 'tag';
 
             refresh(forTag);
         });
     };
 
     var search = function () {
-        Y.use('autocomplete-base', 'autocomplete-filters', function (Y) {
-            var TreeFilter = Y.Base.create('treeFilter', Y.Base, [ Y.AutoCompleteBase ], {
-                initializer : function () {
-                    this._bindUIACBase();
-                    this._syncUIACBase();
+        $('#' + block_knowledge_sharing.searchid).on('input', function (e) {
+            var text = $(this).val().toUpperCase();
+
+            $('#' + block_knowledge_sharing.treeid + ' li').each(function () {
+                if ($(this).text().toUpperCase().indexOf(text) > -1) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
                 }
-            }),
-
-            filter = new TreeFilter({
-                inputNode : '#' + block_knowledge_sharing.searchid,
-                minQueryLength : 0,
-                queryDelay : 0,
-
-                source : (function () {
-                    var results = [];
-
-                    Y.all('#' + block_knowledge_sharing.treeid + '>div>div div.ygtvitem').each(function (node) {
-                        results.push({
-                            node : node,
-                            text : node.get('text')
-                        });
-                    });
-
-                    return results;
-                }()),
-
-                resultTextLocator : 'text',
-                resultFilters : 'phraseMatch'
-            });
-
-            filter.on('results', function (e) {
-                Y.all('#' + block_knowledge_sharing.treeid + '>div>div div.ygtvitem').addClass('hidden');
-
-                Y.Array.each(e.results, function (result) {
-                    result.raw.node.removeClass('hidden');
-                });
             });
         });
     };
 
     var render = function () {
-        Y.use('yui2-treeview', function (Y) {
-            var tree = new Y.YUI2.widget.TreeView(block_knowledge_sharing.treeid);
-
-            tree.subscribe('clickEvent', function (node, event) {
-                return false
-            });
-
-            tree.render();
-            tree.expandAll();
-        });
+        new tree('#' + block_knowledge_sharing.treeid);
     };
 
     var dragdrop = function () {
-        Y.use('dd', 'io', function (Y) {
-            var modules = Y.Node.all('div.knowledge_sharing_module');
+        $('.knowledge_sharing_module').on('dragstart', function (e) {
+            e = e.originalEvent;
 
-            modules.each(function (item, index) {
-                var drag = new Y.DD.Drag({
-                    node : item
-                }).plug(Y.Plugin.DDProxy, {
-                    cloneNode : true,
-                    moveOnEnd : false
-                });
+            e.dataTransfer.dropEffect = 'copy';
+            e.dataTransfer.setData('text', $(this).attr('data-module'));
+        });
 
-                drag.on('drag:enter', function (e) {
-                    e.drop.get('node').one('.dndupload-preview').removeClass('dndupload-hidden');
-                });
+        $('li.section').on('dragover', function (e) {
+            e.preventDefault();
+            $(this).find('.dndupload-preview').removeClass('dndupload-hidden');
+        }).on('dragleave', function (e) {
+            $(this).find('.dndupload-preview').addClass('dndupload-hidden');
+        }).on('drop', function (e) {
+            var that = this;
 
-                drag.on('drag:exit', function (e) {
-                    e.drop.get('node').one('.dndupload-preview').addClass('dndupload-hidden');
-                });
+            e.preventDefault();
 
-                drag.on('drag:drophit', function (e) {
-                    var target = e.drop.get('node');
+            e = e.originalEvent;
 
-                    target.one('.dndupload-preview').addClass('dndupload-hidden');
+            $(that).find('.dndupload-preview').addClass('dndupload-hidden');
 
-                    var section = target.one('span[data-itemtype="sectionname"]').getAttribute('data-itemid');
-                    var module = e.drag.get('node').getAttribute('data-module');
+            var section = $(that).find('span[data-itemtype="sectionname"]').attr('data-itemid');
+            var module = e.dataTransfer.getData('text');
 
-                    if (section) {
-                        var spinner = M.util.add_spinner(Y, target);
+            if (section) {
+                addSpinner($(that));
 
-                        spinner.show();
-
-                        Ajax.call([ {
-                            methodname : 'block_knowledge_sharing_external_duplicte',
-                            args : {
-                                'section' : section,
-                                'module' : module,
-                                'course' : Y.one('#course').get('value')
-                            }
-
-                        } ])[0].done(function (response) {
-                            spinner.remove();
-
-                            var result = JSON.parse(response);
-                            var ul = Y.one('span[data-itemid="' + result.section + '"]').ancestor('div.content').one('ul.section');
-                            var il = Y.Node.create(result.module);
-
-                            ul.insert(il, ul.one('li.dndupload-preview'));
-
-                            M.course_dndupload.add_editing(il._node.id);
-                        }).fail(function (ex) {
-                            spinner.remove();
-                            console.log(ex);
-                        });
+                ajax.call([ {
+                    methodname : 'block_knowledge_sharing_external_duplicte',
+                    args : {
+                        'section' : section,
+                        'module' : module,
+                        'course' : $('#course').attr('value')
                     }
-                });
-            });
+                } ])[0].done(function (response) {
+                    removeSpinner($(that));
 
-            var sections = Y.Node.all('li.section');
+                    var result = JSON.parse(response);
+                    var ul = $(that).find('ul.section');
+                    var il = $.parseHTML(result.module);
 
-            sections.each(function (item, index) {
-                var drop = new Y.DD.Drop({
-                    node : item
+                    ul.find('li.dndupload-preview').before(il);
+
+                    M.course_dndupload.add_editing($(il).attr('id'));
+                }).fail(function (ex) {
+                    removeSpinner($(that));
+
+                    console.log(ex);
                 });
-            });
+            }
         });
     };
 
     var refresh = function (tag) {
-        var root = Y.one('#' + block_knowledge_sharing.treeid);
-        var spinner = M.util.add_spinner(Y, root.ancestor());
+        var root = $('#' + block_knowledge_sharing.treeid);
 
         root.hide();
-        spinner.show();
+        addSpinner(root.parent());
 
-        Ajax.call([ {
+        ajax.call([ {
             methodname : 'block_knowledge_sharing_external_group',
             args : {
-                'tag' : tag
+                'tag' : tag,
+                'course' : $('#course').val()
             }
 
         } ])[0].done(function (response) {
-            spinner.remove();
-            root.show();
+            removeSpinner(root.parent());
 
             var result = JSON.parse(response);
 
-            root.setHTML(result.content);
+            root.html(result.content);
 
             block_knowledge_sharing.activeGroup = tag ? 'group_category' : 'group_tag';
 
@@ -202,11 +155,33 @@ define([ 'jquery', 'core/ajax' ], function ($, Ajax) {
             dragdrop();
             search();
             setgroup();
-        }).fail(function (ex) {
-            spinner.remove();
+
             root.show();
+
+        }).fail(function (ex) {
+            removeSpinner(root.parent());
+            root.show();
+
             console.log(ex);
         });
+    };
+
+    var addSpinner = function (element) {
+        element.addClass('updating');
+
+        var spinner = element.find('img.spinner');
+
+        if (spinner.length) {
+            spinner.show();
+        } else {
+            spinner = $('<img/>').attr('src', url.imageUrl('i/loading_small')).addClass('spinner').addClass('smallicon');
+            element.append(spinner);
+        }
+    };
+
+    var removeSpinner = function (element) {
+        element.removeClass('updating');
+        element.find('img.spinner').hide();
     };
 
     return {

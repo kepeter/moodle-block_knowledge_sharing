@@ -13,6 +13,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Knowledge Sharing Block
+ *
+ * @package block_knowledge_sharing
+ * @copyright 2018 Peter Eliyahu Kornfeld
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined ( 'MOODLE_INTERNAL' ) || die ();
 
 class block_knowledge_sharing_renderer extends plugin_renderer_base {
@@ -25,7 +33,7 @@ class block_knowledge_sharing_renderer extends plugin_renderer_base {
         global $OUTPUT;
         
         $module = array (
-            'name' => 'block_knowledge_sharing',
+            'name'     => 'block_knowledge_sharing',
             'fullpath' => '/blocks/knowledge_sharing/module.js',
             'requires' => array (
                 'yui2-treeview' 
@@ -46,7 +54,7 @@ class block_knowledge_sharing_renderer extends plugin_renderer_base {
             
             $html = html_writer::empty_tag ( 'input',
                     array (
-                        'id' => $searchid,
+                        'id'   => $searchid,
                         'name' => $searchid,
                         'type' => 'search' 
                     ) );
@@ -59,7 +67,7 @@ class block_knowledge_sharing_renderer extends plugin_renderer_base {
             
             $html .= html_writer::link ( '', $icon,
                     array (
-                        'id' => 'group_tag',
+                        'id'    => 'group_tag',
                         'class' => 'group' 
                     ) );
             
@@ -71,7 +79,7 @@ class block_knowledge_sharing_renderer extends plugin_renderer_base {
             
             $html .= html_writer::link ( '', $icon,
                     array (
-                        'id' => 'group_category',
+                        'id'    => 'group_category',
                         'class' => 'group' 
                     ) );
             
@@ -86,51 +94,113 @@ class block_knowledge_sharing_renderer extends plugin_renderer_base {
     }
 
     public function tree2html($tree, $parent = NULL) {
-        $yuiconfig = array ();
-        $yuiconfig ['type'] = 'html';
-        
         if (empty ( $tree )) {
             return ('');
         }
         
-        $result = '<ul>';
+        $tree2html = $this->item2html ( $tree, $parent );
         
-        foreach ( $tree as $key => $item ) {
-            if ($item->type == 'tag') {
-                $result .= '<li yuiConfig=\'' . json_encode ( $yuiconfig ) . '\'><div>' . s ( $item->name ) . '</div> ' .
-                         $this->tree2html ( $item->module ) . '</li>';
-            }
-            
-            if ($item->type == 'category') {
-                $result .= '<li yuiConfig=\'' . json_encode ( $yuiconfig ) . '\'><div>' . s ( $item->name ) .
-                         $this->get_add_icon ( $item->id ) . '</div> ' . $this->tree2html ( $item->category ) .
-                         $this->tree2html ( $item->course ) . '</li>';
-            }
-            
-            if ($item->type == 'course') {
-                $result .= '<li yuiConfig=\'' . json_encode ( $yuiconfig ) . '\'><div>' . s ( $item->name ) .
-                         $this->get_edit_icon ( $item->id ) . $this->get_tag_edit_icon ( $item->id ) . '</div> ' .
-                         $this->tree2html ( $item->section, $item->id ) . '</li>';
-            }
-            
-            if ($item->type == 'section') {
-                $result .= '<li yuiConfig=\'' . json_encode ( $yuiconfig ) . '\'><div>' . s ( $item->name ) .
-                         $this->get_edit_icon ( $parent, $item->id ) . '</div> ' . $this->tree2html ( $item->module ) . '</li>';
-            }
-            
-            if ($item->type == 'module') {
-                $image = $this->output->pix_icon ( $item->icon, '', '',
-                        array (
-                            'class' => 'icon' 
-                        ) );
+        $result = html_writer::nonempty_tag ( 'ul', $tree2html,
+                array (
+                    'role'  => 'tree',
+                    'class' => 'block_tree list' 
+                ) );
+        
+        return ($result);
+    }
+
+    protected function get_group_id() {
+        return (str_replace ( '.', '_', uniqid ( 'group_', TRUE ) ));
+    }
+
+    protected function render_span($item, $id) {
+        $result = html_writer::start_span ( 'tree_item branch',
+                array (
+                    'role'          => 'treeitem',
+                    'aria-expanded' => 'true',
+                    'aria-owns'     => $id 
+                ) );
+        $result .= s ( $item->name );
+        $result .= html_writer::end_span ();
+        
+        return ($result);
+    }
+
+    protected function render_ul($content, $id) {
+        $result = html_writer::nonempty_tag ( 'ul', $content,
+                array (
+                    'role' => 'group',
+                    'id'   => $id 
+                ) );
+        
+        return ($result);
+    }
+
+    protected function item2html($tree, $parent = NULL) {
+        $result = '';
+        
+        if (! empty ( $tree )) {
+            foreach ( $tree as $item ) {
+                $id = $this->get_group_id ();
                 
-                $result .= '<li yuiConfig=\'' . json_encode ( $yuiconfig ) . '\'><div class="knowledge_sharing_module" data-module="' .
-                         $item->id . '">' . $image . s ( $item->name ) . $this->get_view_icon ( $item->modtype, $item->id ) .
-                         '</div></li>';
+                $result .= html_writer::start_tag ( 'li' );
+                
+                if ($item->type == 'tag') {
+                    $module = $this->item2html ( $item->module );
+                    
+                    $result .= $this->render_span ( $item, $id );
+                    $result .= $this->render_ul ( $module, $id );
+                }
+                
+                if ($item->type == 'category') {
+                    $category = ! isset ( $item->category ) ? '' : $this->item2html ( $item->category );
+                    $course = $this->item2html ( $item->course );
+                    
+                    $result .= $this->render_span ( $item, $id );
+                    $result .= $this->get_add_icon ( $item->id );
+                    $result .= $this->render_ul ( $category . $course, $id );
+                }
+                
+                if ($item->type == 'course') {
+                    $section = $this->item2html ( $item->section, $item->id );
+                    
+                    $result .= $this->render_span ( $item, $id );
+                    $result .= $this->get_edit_icon ( $item->id );
+                    $result .= $this->get_tag_edit_icon ( $item->id );
+                    $result .= $this->render_ul ( $section, $id );
+                }
+                
+                if ($item->type == 'section') {
+                    $module = $this->item2html ( $item->module );
+                    
+                    $result .= $this->render_span ( $item, $id );
+                    $result .= $this->get_edit_icon ( $item->id );
+                    $result .= $this->render_ul ( $module, $id );
+                }
+                
+                if ($item->type == 'module') {
+                    $image = $this->output->pix_icon ( $item->icon, '', '',
+                            array (
+                                'class' => 'icon' 
+                            ) );
+                    
+                    $result .= html_writer::start_span ( 'knowledge_sharing_module',
+                            array (
+                                'role'        => 'treeitem',
+                                'data-module' => $item->id,
+                                'draggable'   => 'true' 
+                            ) );
+                    $result .= $image;
+                    $result .= html_writer::start_span ();
+                    $result .= s ( $item->name );
+                    $result .= html_writer::end_span ();
+                    $result .= html_writer::end_span ();
+                    $result .= $this->get_view_icon ( $item->modtype, $item->id );
+                }
+                
+                $result .= '</li>';
             }
         }
-        
-        $result .= '</ul>';
         
         return ($result);
     }
@@ -146,7 +216,7 @@ class block_knowledge_sharing_renderer extends plugin_renderer_base {
             $edit = html_writer::link ( 
                     new moodle_url ( '/course/view.php',
                             array (
-                                'id' => $course,
+                                'id'        => $course,
                                 'sectionid' => $sectionid 
                             ) ), $icon );
         } else {

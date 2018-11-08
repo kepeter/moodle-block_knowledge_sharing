@@ -13,6 +13,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Knowledge Sharing Block
+ *
+ * @package block_knowledge_sharing
+ * @copyright 2018 Peter Eliyahu Kornfeld
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined ( 'MOODLE_INTERNAL' ) || die ();
 
 require_once ($CFG->dirroot . '/lib/coursecatlib.php');
@@ -21,7 +29,7 @@ if ($ADMIN->fulltree) {
     $settings->add ( 
             new admin_setting_heading ( 'block_knowledge_sharing/version',
                     '<h6>' . get_string ( 'version', 'block_knowledge_sharing' ) . $this->release . ' (' . $this->versiondisk .
-                             ')</h6>', '' ) );
+                    ')</h6>', '' ) );
     
     $categories = coursecat::make_categories_list ( 'moodle/category:manage' );
     

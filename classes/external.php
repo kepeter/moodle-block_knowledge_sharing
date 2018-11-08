@@ -13,6 +13,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Knowledge Sharing Block
+ *
+ * @package block_knowledge_sharing
+ * @copyright 2018 Peter Eliyahu Kornfeld
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined ( 'MOODLE_INTERNAL' ) || die ();
 
 require_once ($CFG->dirroot . '/lib/externallib.php');
@@ -87,17 +95,23 @@ class block_knowledge_sharing_external extends external_api {
     public static function group_parameters() {
         return new external_function_parameters ( 
                 array (
-                    'tag' => new external_value ( PARAM_BOOL, 'group by tag', VALUE_REQUIRED ) 
+                    'tag'     => new external_value ( PARAM_BOOL, 'group by tag', VALUE_REQUIRED ),
+                    'course'  => new external_value ( PARAM_INT, 'course id', VALUE_REQUIRED )
                 ) );
     }
 
-    public static function group($tag) {
+    public static function group($tag, $course) {
         global $PAGE;
         
         $params = array (
-            'tag' => $tag 
+            'tag'     => $tag,
+            'course'  => $course 
         );
         $params = self::validate_parameters ( self::group_parameters (), $params );
+        
+        require_sesskey ();
+        require_login ();
+        require_login ( $course );
         
         $config = get_config ( 'block_knowledge_sharing' );
         
