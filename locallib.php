@@ -87,7 +87,7 @@ function load_knowledge_tree($root, $exclude) {
                     $module_count = 0;
                     
                     foreach ( $mods as $cmid => $cm ) {
-                        if ($cm->visible && ($cm->section == $section->id) && ! in_array ( $cm->module, $exclude )) {
+                        if ($cm->visible && !$cm->deletioninprogress && ($cm->section == $section->id) && ! in_array ( $cm->module, $exclude )) {
                             $cat->course [$id]->section [$section->id]->module [$cmid] = new stdClass ();
                             
                             $cat->course [$id]->section [$section->id]->module [$cmid]->id = $cm->id;
