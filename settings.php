@@ -23,15 +23,13 @@
  */
 defined ( 'MOODLE_INTERNAL' ) || die ();
 
-require_once ($CFG->dirroot . '/lib/coursecatlib.php');
-
 if ($ADMIN->fulltree) {
     $settings->add ( 
             new admin_setting_heading ( 'block_knowledge_sharing/version',
                     '<h6>' . get_string ( 'version', 'block_knowledge_sharing' ) . $this->release . ' (' . $this->versiondisk .
                     ')</h6>', '' ) );
     
-    $categories = coursecat::make_categories_list ( 'moodle/category:manage' );
+    $categories = core_course_category::make_categories_list ( 'moodle/category:manage' );
     
     $settings->add ( 
             new admin_setting_configselect ( 'block_knowledge_sharing/root',

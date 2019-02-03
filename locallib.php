@@ -24,7 +24,6 @@
 defined ( 'MOODLE_INTERNAL' ) || die ();
 
 require_once ($CFG->dirroot . '/course/lib.php');
-require_once ($CFG->dirroot . '/lib/coursecatlib.php');
 require_once ($CFG->dirroot . '/lib/moodlelib.php');
 require_once ($CFG->dirroot . '/tag/classes/tag.php');
 
@@ -51,7 +50,7 @@ function _tree_by_tag(&$new, $root) {
 function load_knowledge_tree($root, $exclude) {
     $exclude = explode ( ',', $exclude );
     
-    $category = coursecat::get ( $root );
+    $category = core_course_category::get ( $root );
     $children = $category->get_children ();
     
     $cat = new stdClass ();
