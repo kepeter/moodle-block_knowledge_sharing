@@ -27,10 +27,10 @@ require_once ($CFG->dirroot . '/course/lib.php');
 require_once ($CFG->dirroot . '/lib/moodlelib.php');
 require_once ($CFG->dirroot . '/tag/classes/tag.php');
 
-function _tree_by_tag(&$new, $root) {
+function block_knowledge_sharing_tree_by_tag(&$new, $root) {
     foreach ( $root as $item ) {
         if ($item->type != 'module') {
-            _tree_by_tag ( $new, $item );
+            block_knowledge_sharing_tree_by_tag ( $new, $item );
         } else {
             foreach ( $item->tags as $key => $tag ) {
                 if (! array_key_exists ( $key, $new )) {
@@ -47,7 +47,7 @@ function _tree_by_tag(&$new, $root) {
     }
 }
 
-function load_knowledge_tree($root, $exclude) {
+function block_knowledge_sharing_load_knowledge_tree($root, $exclude) {
     $exclude = explode ( ',', $exclude );
     
     $category = core_course_category::get ( $root );
@@ -120,7 +120,7 @@ function load_knowledge_tree($root, $exclude) {
     }
     
     foreach ( $children as $child ) {
-        $cat->category [$child->id] = load_knowledge_tree ( $child->id, $exclude );
+        $cat->category [$child->id] = block_knowledge_sharing_load_knowledge_tree ( $child->id, $exclude );
     }
     
     return (array (
@@ -128,10 +128,10 @@ function load_knowledge_tree($root, $exclude) {
     ));
 }
 
-function load_knowledge_tree_for_tag($root, $exclude) {
+function block_knowledge_sharing_load_knowledge_tree_for_tag($root, $exclude) {
     $new = array ();
     
-    _tree_by_tag ( $new, load_knowledge_tree ( $root, $exclude ) );
+    block_knowledge_sharing_tree_by_tag ( $new, block_knowledge_sharing_load_knowledge_tree ( $root, $exclude ) );
     
     return ($new);
 }
