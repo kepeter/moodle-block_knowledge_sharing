@@ -59,7 +59,7 @@ class block_knowledge_sharing extends block_base {
         $renderer = $this->page->get_renderer ( 'block_knowledge_sharing' );
         
         $this->content = new stdClass ();
-        $this->content->text = $renderer->render_tree ( load_knowledge_tree ( $config->root, $config->exclude ) );
+        $this->content->text = $renderer->render_tree ( block_knowledge_sharing_load_knowledge_tree ( $config->root, $config->exclude ) );
         
         return ($this->content);
     }
