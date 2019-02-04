@@ -48,7 +48,9 @@ function block_knowledge_sharing_tree_by_tag(&$new, $root) {
 }
 
 function block_knowledge_sharing_load_knowledge_tree($root, $exclude) {
-    $exclude = explode ( ',', $exclude );
+    if(!is_array($exclude)) {
+        $exclude = explode ( ',', $exclude );
+    }
     
     $category = core_course_category::get ( $root );
     $children = $category->get_children ();

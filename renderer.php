@@ -144,58 +144,60 @@ class block_knowledge_sharing_renderer extends plugin_renderer_base {
                 $id = $this->get_group_id ();
                 
                 $result .= html_writer::start_tag ( 'li' );
-                
-                if ($item->type == 'tag') {
-                    $module = $this->item2html ( $item->module );
+
+                if (is_object($item) && property_exists($item, 'type')) {
+                    if ($item->type == 'tag') {
+                        $module = $this->item2html ( $item->module );
+                        
+                        $result .= $this->render_span ( $item, $id );
+                        $result .= $this->render_ul ( $module, $id );
+                    }
                     
-                    $result .= $this->render_span ( $item, $id );
-                    $result .= $this->render_ul ( $module, $id );
-                }
+                    if ($item->type == 'category') {
+                        $category = ! isset ( $item->category ) ? '' : $this->item2html ( $item->category );
+                        $course = $this->item2html ( $item->course );
+                        
+                        $result .= $this->render_span ( $item, $id );
+                        $result .= $this->get_add_icon ( $item->id );
+                        $result .= $this->render_ul ( $category . $course, $id );
+                    }
                 
-                if ($item->type == 'category') {
-                    $category = ! isset ( $item->category ) ? '' : $this->item2html ( $item->category );
-                    $course = $this->item2html ( $item->course );
-                    
-                    $result .= $this->render_span ( $item, $id );
-                    $result .= $this->get_add_icon ( $item->id );
-                    $result .= $this->render_ul ( $category . $course, $id );
-                }
+                    if ($item->type == 'course') {
+                        $section = $this->item2html ( $item->section, $item->id );
+                        
+                        $result .= $this->render_span ( $item, $id );
+                        $result .= $this->get_edit_icon ( $item->id );
+                        $result .= $this->get_tag_edit_icon ( $item->id );
+                        $result .= $this->render_ul ( $section, $id );
+                    }
                 
-                if ($item->type == 'course') {
-                    $section = $this->item2html ( $item->section, $item->id );
+                    if ($item->type == 'section') {
+                        $module = $this->item2html ( $item->module );
                     
-                    $result .= $this->render_span ( $item, $id );
-                    $result .= $this->get_edit_icon ( $item->id );
-                    $result .= $this->get_tag_edit_icon ( $item->id );
-                    $result .= $this->render_ul ( $section, $id );
-                }
+                        $result .= $this->render_span ( $item, $id );
+                        $result .= $this->get_edit_icon ( $item->id );
+                        $result .= $this->render_ul ( $module, $id );
+                    }
                 
-                if ($item->type == 'section') {
-                    $module = $this->item2html ( $item->module );
+                    if ($item->type == 'module') {
+                        $image = $this->output->pix_icon ( $item->icon, '', '',
+                                array (
+                                    'class' => 'icon' 
+                                ) );
                     
-                    $result .= $this->render_span ( $item, $id );
-                    $result .= $this->get_edit_icon ( $item->id );
-                    $result .= $this->render_ul ( $module, $id );
-                }
-                
-                if ($item->type == 'module') {
-                    $image = $this->output->pix_icon ( $item->icon, '', '',
-                            array (
-                                'class' => 'icon' 
-                            ) );
-                    
-                    $result .= html_writer::start_span ( 'knowledge_sharing_module',
-                            array (
-                                'role'        => 'treeitem',
-                                'data-module' => $item->id,
-                                'draggable'   => 'true' 
-                            ) );
-                    $result .= $image;
-                    $result .= html_writer::start_span ();
-                    $result .= s ( $item->name );
-                    $result .= html_writer::end_span ();
-                    $result .= html_writer::end_span ();
-                    $result .= $this->get_view_icon ( $item->modtype, $item->id );
+                        $result .= html_writer::start_span ( 'knowledge_sharing_module',
+                                array (
+                                    'role'        => 'treeitem',
+                                    'data-module' => $item->id,
+                                    'draggable'   => 'true' 
+                                ) );
+                        $result .= $image;
+                        $result .= html_writer::start_span ();
+                        $result .= s ( $item->name );
+                        $result .= html_writer::end_span ();
+                        $result .= html_writer::end_span ();
+                        $result .= $this->get_view_icon ( $item->modtype, $item->id );
+                    }
                 }
                 
                 $result .= '</li>';
