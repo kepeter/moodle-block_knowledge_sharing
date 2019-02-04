@@ -116,9 +116,9 @@ class block_knowledge_sharing_external extends external_api {
         $config = get_config ( 'block_knowledge_sharing' );
         
         if ($tag) {
-            $tree = load_knowledge_tree_for_tag ( $config->root, $config->exclude );
+            $tree = block_knowledge_sharing_load_knowledge_tree_for_tag ( $config->root, $config->exclude );
         } else {
-            $tree = load_knowledge_tree ( $config->root, $config->exclude );
+            $tree = block_knowledge_sharing_load_knowledge_tree ( $config->root, $config->exclude );
         }
         
         $renderer = $PAGE->get_renderer ( 'block_knowledge_sharing' );
