@@ -31,7 +31,7 @@ $string ['category_list'] = 'Root category';
 $string ['category_list_desc'] = 'Pick the category to use as the root for Knowledge Sharing';
 
 $string ['exclude'] = 'Modules to exclude';
-$string ['exclude_desc'] = 'Select all the moduels you want to exclude from the Knowledge Sharing';
+$string ['exclude_desc'] = 'Select all the modules you want to exclude from the Knowledge Sharing';
 
 $string ['knowledge_sharing:addinstance'] = 'Add a new Knowledge Sharing block';
 
