@@ -70,15 +70,17 @@ class block_knowledge_sharing_external extends external_api {
         ) );
         
         $module->course = $course->id;
+        $module->section = $section->id;
+
         $newmodule = duplicate_module ( $course, $module );
-        
+
         $DB->set_field ( $newmodule->modname, 'name', $module->name, [
             'id' => $newmodule->instance
         ] );
         $newmodule->name = $module->name;
-        
-        course_add_cm_to_section ( $course, $newmodule->id, $section->section );
-        
+
+        moveto_module($newmodule, $section);
+
         $courserenderer = $PAGE->get_renderer ( 'core', 'course' );
         $completioninfo = new completion_info ( $course );
         

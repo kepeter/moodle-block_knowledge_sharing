@@ -21,6 +21,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define([ 'jquery', 'core/tree', 'core/ajax', 'core/url' ], function ($, tree, ajax, url) {
+    var drop_taget;
     var block_knowledge_sharing = {};
 
     var init_tree = function (treeid, searchid) {
@@ -81,17 +82,37 @@ define([ 'jquery', 'core/tree', 'core/ajax', 'core/url' ], function ($, tree, aj
 
             e.dataTransfer.dropEffect = 'copy';
             e.dataTransfer.setData('text', $(this).attr('data-module'));
+        }).on('dragend', function(e) {
+            this.drop_target = null;
+
+            $('.dndupload-preview').addClass('dndupload-hidden');
         });
 
-        $('li.section').on('dragover', function (e) {
+        $('li.section').on('dragenter', function (e) {
+            e.stopPropagation();
             e.preventDefault();
+
+            this.drop_target = e.target;
+
             $(this).find('.dndupload-preview').removeClass('dndupload-hidden');
+        }).on('dragover', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+
         }).on('dragleave', function (e) {
-            $(this).find('.dndupload-preview').addClass('dndupload-hidden');
+            e.stopPropagation();
+            e.preventDefault();
+
+            if (this.drop_target === e.target) {
+                $(this).find('.dndupload-preview').addClass('dndupload-hidden');
+            }
         }).on('drop', function (e) {
             var that = this;
 
+            e.stopPropagation();
             e.preventDefault();
+
+            this.drop_target = null;
 
             e = e.originalEvent;
 
