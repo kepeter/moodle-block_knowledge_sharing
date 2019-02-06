@@ -88,6 +88,11 @@ function block_knowledge_sharing_load_knowledge_tree($root, $exclude) {
                     $module_count = 0;
                     
                     foreach ( $mods as $cmid => $cm ) {
+                        $context = context_module::instance($cm->id);
+                        if (!has_capability('moodle/course:manageactivities', $context)) {
+                            continue;
+                        }
+
                         if ($cm->visible && !$cm->deletioninprogress && ($cm->section == $section->id) && ! in_array ( $cm->module, $exclude )) {
                             $cat->course [$id]->section [$section->id]->module [$cmid] = new stdClass ();
                             
