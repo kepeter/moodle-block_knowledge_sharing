@@ -50,6 +50,9 @@ class block_knowledge_sharing_external extends external_api {
         require_sesskey ();
         require_login ();
         require_login ( $course );
+
+        $context = context_module::instance($module);
+        require_capability('moodle/course:manageactivities', $context);
         
         $module = $DB->get_record ( 'course_modules', array (
             'id' => $module
