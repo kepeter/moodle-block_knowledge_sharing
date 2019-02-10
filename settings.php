@@ -29,7 +29,7 @@ if ($ADMIN->fulltree) {
                     '<h6>' . get_string ( 'version', 'block_knowledge_sharing' ) . $this->release . ' (' . $this->versiondisk .
                     ')</h6>', '' ) );
     
-    $categories = core_course_category::make_categories_list ( 'moodle/category:manage' );
+    $categories = coursecat::make_categories_list ( 'moodle/category:manage' );
     
     $settings->add ( 
             new admin_setting_configselect ( 'block_knowledge_sharing/root',
