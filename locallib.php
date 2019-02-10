@@ -52,7 +52,7 @@ function block_knowledge_sharing_load_knowledge_tree($root, $exclude) {
         $exclude = explode ( ',', $exclude );
     }
     
-    $category = core_course_category::get ( $root );
+    $category = coursecat::get ( $root );
     $children = $category->get_children ();
     
     $cat = new stdClass ();
