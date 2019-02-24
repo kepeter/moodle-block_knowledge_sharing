@@ -42,3 +42,8 @@ $string ['view-resource'] = 'View resource/activity';
 
 $string ['tag-group'] = 'Group by tag';
 $string ['category-group'] = 'Group by category';
+
+$string ['no_capability_check'] = 'Skip capability check';
+$string ['no_capability_check_desc'] = 'Everyone can see all the content of the Knowledge Sharing tree...';
+
+$string ['careful'] = 'Handle with care!';
