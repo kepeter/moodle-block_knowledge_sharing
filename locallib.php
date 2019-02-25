@@ -47,7 +47,7 @@ function block_knowledge_sharing_tree_by_tag(&$new, $root) {
     }
 }
 
-function block_knowledge_sharing_load_knowledge_tree($root, $exclude) {
+function block_knowledge_sharing_load_knowledge_tree($root, $exclude, $check) {
     if(!is_array($exclude)) {
         $exclude = explode ( ',', $exclude );
     }
@@ -88,9 +88,11 @@ function block_knowledge_sharing_load_knowledge_tree($root, $exclude) {
                     $module_count = 0;
                     
                     foreach ( $mods as $cmid => $cm ) {
-                        $context = context_module::instance($cm->id);
-                        if (!has_capability('moodle/course:manageactivities', $context)) {
-                            continue;
+                        if (! $check) {
+                        	$context = context_module::instance($cm->id);
+                        	if (!has_capability('moodle/course:manageactivities', $context)) {
+                            	continue;
+                        	}
                         }
 
                         if ($cm->visible && !$cm->deletioninprogress && ($cm->section == $section->id) && ! in_array ( $cm->module, $exclude )) {
@@ -127,7 +129,7 @@ function block_knowledge_sharing_load_knowledge_tree($root, $exclude) {
     }
     
     foreach ( $children as $child ) {
-        $cat->category [$child->id] = block_knowledge_sharing_load_knowledge_tree ( $child->id, $exclude );
+        $cat->category [$child->id] = block_knowledge_sharing_load_knowledge_tree ( $child->id, $exclude, $check );
     }
     
     return (array (
@@ -135,10 +137,10 @@ function block_knowledge_sharing_load_knowledge_tree($root, $exclude) {
     ));
 }
 
-function block_knowledge_sharing_load_knowledge_tree_for_tag($root, $exclude) {
+function block_knowledge_sharing_load_knowledge_tree_for_tag($root, $exclude, $check) {
     $new = array ();
     
-    block_knowledge_sharing_tree_by_tag ( $new, block_knowledge_sharing_load_knowledge_tree ( $root, $exclude ) );
+    block_knowledge_sharing_tree_by_tag ( $new, block_knowledge_sharing_load_knowledge_tree ( $root, $exclude, $check ) );
     
     return ($new);
 }

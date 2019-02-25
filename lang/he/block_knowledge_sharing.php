@@ -42,3 +42,8 @@ $string ['view-resource'] = 'צפיה במשאב';
 
 $string ['tag-group'] = 'קיבוץ לפי תויות';
 $string ['category-group'] = 'קיבוץ לפי קטגוריות';
+
+$string ['no_capability_check'] = 'דלג על בדיקת הרשאות';
+$string ['no_capability_check_desc'] = 'כל אחד יכול לראות את כל התוכן של עץ שיתוף החומרים...';
+$string ['careful'] = 'זהירות!';
+

@@ -40,4 +40,13 @@ if ($ADMIN->fulltree) {
             new admin_setting_configmultiselect_modules ( 'block_knowledge_sharing/exclude',
                     get_string ( 'exclude', 'block_knowledge_sharing' ), get_string ( 'exclude_desc', 'block_knowledge_sharing' ),
                     null ) );
+
+	$settings->add ( 
+            new admin_setting_heading ( 'block_knowledge_sharing/careful',
+                    '<h4>' . get_string ( 'careful', 'block_knowledge_sharing' ) . '</h4>', '' ) );
+    
+    $settings->add ( 
+            new admin_setting_configcheckbox ( 'block_knowledge_sharing/no_capability_check',
+                    get_string ( 'no_capability_check', 'block_knowledge_sharing' ),
+                    get_string ( 'no_capability_check_desc', 'block_knowledge_sharing' ), 0 ) );
 }

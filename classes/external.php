@@ -50,9 +50,14 @@ class block_knowledge_sharing_external extends external_api {
         require_sesskey ();
         require_login ();
         require_login ( $course );
+    
+		$config = get_config ( 'block_knowledge_sharing' );
 
-        $context = context_module::instance($module);
-        require_capability('moodle/course:manageactivities', $context);
+        if (! isset ( $config->no_capability_check ) ||
+                (isset ( $config->no_capability_check ) && ! $config->no_capability_check)) {
+            $context = context_module::instance ( $module );
+            require_capability ( 'moodle/course:manageactivities', $context );
+        }
         
         $module = $DB->get_record ( 'course_modules', array (
             'id' => $module
@@ -121,9 +126,11 @@ class block_knowledge_sharing_external extends external_api {
         $config = get_config ( 'block_knowledge_sharing' );
         
         if ($tag) {
-            $tree = block_knowledge_sharing_load_knowledge_tree_for_tag ( $config->root, $config->exclude );
+            $tree = block_knowledge_sharing_load_knowledge_tree_for_tag ( $config->root, $config->exclude,
+                    isset ( $config->no_capability_check ) ? $config->no_capability_check : FALSE );
         } else {
-            $tree = block_knowledge_sharing_load_knowledge_tree ( $config->root, $config->exclude );
+            $tree = block_knowledge_sharing_load_knowledge_tree ( $config->root, $config->exclude,
+                    isset ( $config->no_capability_check ) ? $config->no_capability_check : FALSE );
         }
         
         $renderer = $PAGE->get_renderer ( 'block_knowledge_sharing' );
